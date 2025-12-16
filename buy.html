@@ -6,81 +6,72 @@
 
 <style>
 body {
-  font-family: -apple-system, BlinkMacSystemFont, Arial, sans-serif;
-  max-width: 520px;
-  margin: auto;
-  padding: 20px;
+  font-family: Arial, sans-serif;
+  max-width: 600px;
+  margin: 40px;
 }
 
-.box {
-  border: 1px solid #ddd;
-  padding: 20px;
-  border-radius: 12px;
+h1 {
+  font-size: 26px;
+  margin-bottom: 10px;
+}
+
+.price {
+  font-size: 16px;
+  margin-bottom: 20px;
 }
 
 .qty {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 16px;
   margin: 15px 0;
 }
 
 .qty button {
-  width: 38px;
-  height: 38px;
-  font-size: 22px;
-  border: none;
-  background: #000;
-  color: #fff;
-  border-radius: 8px;
-  cursor: pointer;
+  padding: 4px 10px;
+  font-size: 16px;
+  margin: 0 5px;
 }
 
-.apple-btn {
-  margin-top: 20px;
-  width: 100%;
-  background: #000;
-  color: #fff;
-  padding: 16px;
-  font-size: 17px;
-  border: none;
-  border-radius: 999px;
-  cursor: pointer;
+.total {
+  margin: 15px 0;
+  font-weight: bold;
 }
 
-.apple-btn:hover {
-  opacity: 0.9;
+.buy-btn {
+  padding: 6px 14px;
+  font-size: 14px;
+  cursor: pointer;
 }
 </style>
 </head>
 
 <body>
 
-<h2>Checkout</h2>
+<h1 id="name">Product</h1>
 
-<div class="box">
-  <p><b id="name"></b></p>
-  <p>Unit price: <span id="unit"></span></p>
-
-  <div class="qty">
-    <button onclick="changeQty(-1)">−</button>
-    <span id="qty">1</span>
-    <button onclick="changeQty(1)">+</button>
-  </div>
-
-  <p><b>Total:</b> <span id="total"></span></p>
+<div class="price">
+  Price: <span id="unit"></span>
 </div>
 
-<button class="apple-btn" onclick="payStripe()">
-  Buy Now
+<div class="qty">
+  Quantity:
+  <button onclick="changeQty(-1)">−</button>
+  <span id="qty">1</span>
+  <button onclick="changeQty(1)">+</button>
+</div>
+
+<div class="total">
+  Total: <span id="total"></span>
+</div>
+
+<button class="buy-btn" onclick="payStripe()">
+  Pay with Apple Pay / Card
 </button>
 
 <script>
 const params = new URLSearchParams(window.location.search);
 
-const name = params.get("name") || "Product";
-const unitPrice = Number(params.get("price")) || 0;
+const name = params.get("name") || "Laminate Floor – 10Cl52799";
+const unitPrice = Number(params.get("price")) || 265;
 
 let qty = 1;
 
