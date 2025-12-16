@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -6,25 +7,44 @@
 
 <style>
 body {
-  font-family: Arial, sans-serif;
-  max-width: 600px;
+  font-family: -apple-system, BlinkMacSystemFont, Arial, sans-serif;
+  max-width: 520px;
   margin: auto;
   padding: 20px;
 }
 .box {
   border: 1px solid #ddd;
   padding: 20px;
+  border-radius: 10px;
+}
+.qty {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin: 15px 0;
+}
+.qty button {
+  width: 40px;
+  height: 40px;
+  font-size: 22px;
+  border: none;
+  background: #000;
+  color: #fff;
+  border-radius: 6px;
+}
+select {
+  padding: 6px;
+  margin-top: 10px;
 }
 .pay-btn {
   background: black;
   color: white;
-  padding: 15px 30px;
-  border: none;
+  width: 100%;
+  padding: 16px;
   font-size: 18px;
-  cursor: pointer;
-}
-.pay-btn:hover {
-  opacity: 0.85;
+  border: none;
+  border-radius: 12px;
+  margin-top: 20px;
 }
 </style>
 </head>
@@ -33,28 +53,66 @@ body {
 
 <h2>Checkout</h2>
 
-<div class="box" id="product"></div>
+<div class="box">
+  <p><b id="name"></b></p>
+  <p>Unit price: <span id="unit"></span></p>
 
-<br>
+  <div class="qty">
+    <button onclick="changeQty(-1)">−</button>
+    <span id="qty">1</span>
+    <button onclick="changeQty(1)">+</button>
+  </div>
+
+  <label>Currency:</label><br>
+  <select id="currency" onchange="updateTotal()">
+    <option value="MAD">MAD</option>
+    <option value="EUR">EUR</option>
+    <option value="USD">USD</option>
+  </select>
+
+  <p><b>Total:</b> <span id="total"></span></p>
+</div>
+
 <button class="pay-btn" onclick="payStripe()">
-  Pay with Stripe
+   Pay with Apple Pay / Card
 </button>
 
 <script>
 const params = new URLSearchParams(window.location.search);
 
-const name  = params.get("name") || "Laminate Floor – 10Cl52799";
-const price = params.get("price") || "265";
-const qty   = params.get("qty") || "1";
+const name = params.get("name") || "Product";
+const basePrice = Number(params.get("price")) || 0;
 
-document.getElementById("product").innerHTML = `
-  <p><b>Product:</b> ${name}</p>
-  <p><b>Price:</b> ${price} MAD</p>
-  <p><b>Quantity:</b> ${qty}</p>
-`;
+let qty = 1;
+
+// simple exchange rates (edit anytime)
+const rates = {
+  MAD: 1,
+  EUR: 0.092,
+  USD: 0.10
+};
+
+document.getElementById("name").textContent = name;
+document.getElementById("unit").textContent = basePrice + " MAD";
+
+function changeQty(n) {
+  qty = Math.max(1, qty + n);
+  document.getElementById("qty").textContent = qty;
+  updateTotal();
+}
+
+function updateTotal() {
+  const cur = document.getElementById("currency").value;
+  const total = basePrice * qty * rates[cur];
+  document.getElementById("total").textContent =
+    total.toFixed(2) + " " + cur;
+}
+
+updateTotal();
 
 function payStripe() {
-  window.location.href = "https://buy.stripe.com/3cI4gy1S9aHT7Eq2Ab7Vm00";
+  window.location.href =
+    "https://buy.stripe.com/3cI4gy1S9aHT7Eq2Ab7Vm00";
 }
 </script>
 
