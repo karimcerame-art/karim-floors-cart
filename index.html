@@ -5,29 +5,57 @@
 <title>Karim Floors – Checkout</title>
 
 <style>
-body { font-family: Arial, sans-serif; margin: 0; }
-.header { background:#bcd0f7; padding:20px; font-size:26px; font-weight:bold; }
-.cart { padding:20px; }
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+}
 
-table { width:100%; border-collapse:collapse; margin-bottom:15px; }
-th,td { border-bottom:1px solid #ddd; padding:8px; text-align:center; }
-th { text-align:left; }
+/* 🔴 HEADER NOW BLACK */
+.header {
+  background: #000;
+  color: #fff;
+  padding: 20px;
+  font-size: 26px;
+  font-weight: bold;
+}
+
+.cart {
+  padding: 20px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 15px;
+}
+
+th, td {
+  border-bottom: 1px solid #ddd;
+  padding: 8px;
+  text-align: center;
+}
+
+th {
+  text-align: left;
+}
 
 button {
-  background:black;
-  color:white;
-  border:none;
-  padding:6px 14px;
-  cursor:pointer;
-  font-size:14px;
+  background: black;
+  color: white;
+  border: none;
+  padding: 6px 14px;
+  cursor: pointer;
+  font-size: 14px;
 }
 
 .qty-input {
-  width:55px;
-  text-align:center;
+  width: 55px;
+  text-align: center;
 }
 
-.buttons { margin-top:20px; }
+.buttons {
+  margin-top: 20px;
+}
 </style>
 </head>
 
@@ -36,30 +64,30 @@ button {
 <div class="header">Karim Floors – Checkout</div>
 
 <div class="cart">
-<h2>Your Cart</h2>
+  <h2>Your Cart</h2>
 
-<table>
-<thead>
-<tr>
-  <th>Product</th>
-  <th>−</th>
-  <th>Qty</th>
-  <th>+</th>
-  <th>Price</th>
-  <th>Total</th>
-</tr>
-</thead>
-<tbody id="cartBody">
-<tr><td colspan="6">Cart is empty</td></tr>
-</tbody>
-</table>
+  <table>
+    <thead>
+      <tr>
+        <th>Product</th>
+        <th>−</th>
+        <th>Qty</th>
+        <th>+</th>
+        <th>Price</th>
+        <th>Total</th>
+      </tr>
+    </thead>
+    <tbody id="cartBody">
+      <tr><td colspan="6">Cart is empty</td></tr>
+    </tbody>
+  </table>
 
-<h3 id="grandTotal">Total: 0</h3>
+  <h3 id="grandTotal">Total: 0</h3>
 
-<div class="buttons">
-  <button type="button" onclick="keepShopping()">← Keep shopping</button>
-  <button type="button" onclick="payWithStripe()">Pay with Stripe</button>
-</div>
+  <div class="buttons">
+    <button type="button" onclick="keepShopping()">← Keep shopping</button>
+    <button type="button" onclick="payWithStripe()">Pay with Apple Pay / Card</button>
+  </div>
 </div>
 
 <script>
@@ -75,10 +103,15 @@ if (productName && productPrice) {
   let cart = JSON.parse(localStorage.getItem(CART_KEY)) || [];
   let item = cart.find(p => p.name === productName);
 
-  if (item) item.qty++;
-  else cart.push({ name: productName, price: productPrice, qty: 1 });
+  if (item) {
+    item.qty++;
+  } else {
+    cart.push({ name: productName, price: productPrice, qty: 1 });
+  }
 
   localStorage.setItem(CART_KEY, JSON.stringify(cart));
+
+  // Prevent duplicate add on refresh
   history.replaceState({}, '', window.location.pathname);
 }
 
@@ -86,6 +119,7 @@ if (productName && productPrice) {
 function getCart() {
   return JSON.parse(localStorage.getItem(CART_KEY)) || [];
 }
+
 function saveCart(cart) {
   localStorage.setItem(CART_KEY, JSON.stringify(cart));
 }
@@ -101,7 +135,9 @@ function increase(index) {
 function decrease(index) {
   let cart = getCart();
   cart[index].qty--;
-  if (cart[index].qty <= 0) cart.splice(index, 1);
+  if (cart[index].qty <= 0) {
+    cart.splice(index, 1);
+  }
   saveCart(cart);
   renderCart();
 }
@@ -109,6 +145,7 @@ function decrease(index) {
 function updateQty(index, value) {
   let qty = parseInt(value);
   if (isNaN(qty) || qty < 1) qty = 1;
+
   let cart = getCart();
   cart[index].qty = qty;
   saveCart(cart);
@@ -158,17 +195,22 @@ function renderCart() {
 
 /* NAVIGATION */
 function keepShopping() {
-  if (document.referrer) location.href = document.referrer;
-  else alert('No previous page');
+  if (document.referrer) {
+    window.location.href = document.referrer;
+  } else {
+    alert('No previous page');
+  }
 }
 
-/* STRIPE */
+/* STRIPE (APPLE PAY / CARD) */
 function payWithStripe() {
   if (!getCart().length) {
     alert('Your cart is empty');
     return;
   }
-  location.href = 'https://buy.stripe.com/3cI4gy1S9aHT7Eq2Ab7Vm00';
+
+  window.location.href =
+    'https://buy.stripe.com/3cI4gy1S9aHT7Eq2Ab7Vm00';
 }
 
 /* INIT */
