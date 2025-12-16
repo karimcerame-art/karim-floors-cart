@@ -2,197 +2,143 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Karim Floors – Checkout</title>
+<title>Checkout</title>
 
 <style>
-body {
-  font-family: Arial, sans-serif;
-  margin: 0;
+body { font-family: Arial, sans-serif; margin:0; }
+.header {
+  background:#000; color:#fff; padding:15px;
+  display:flex; justify-content:space-between; align-items:center;
+}
+.cart-icon {
+  position:relative; font-size:20px;
+}
+.cart-count {
+  position:absolute; top:-6px; right:-10px;
+  background:red; color:white; border-radius:50%;
+  padding:2px 6px; font-size:12px;
 }
 
-.cart {
-  padding: 20px;
-}
-
-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-bottom: 15px;
-}
-
-th, td {
-  border-bottom: 1px solid #ddd;
-  padding: 8px;
-  text-align: center;
-}
-
-th {
-  text-align: left;
-}
+.cart { padding:20px; }
+table { width:100%; border-collapse:collapse; }
+th,td { border-bottom:1px solid #ddd; padding:8px; text-align:center; }
+th { text-align:left; }
 
 button {
-  background: black;
-  color: white;
-  border: none;
-  padding: 6px 14px;
-  cursor: pointer;
-  font-size: 14px;
+  background:black; color:white; border:none;
+  padding:8px 14px; cursor:pointer;
 }
+.qty-input { width:50px; text-align:center; }
 
-.qty-input {
-  width: 55px;
-  text-align: center;
+.apple-btn {
+  display:flex; align-items:center; gap:8px;
+  background:black; color:white;
 }
+.apple-btn img { height:18px; }
+.buttons { margin-top:20px; display:flex; gap:10px; flex-wrap:wrap; }
 
-.buttons {
-  margin-top: 20px;
+@media (max-width:600px){
+  table,thead,tbody,tr,td,th { font-size:14px; }
 }
 </style>
 </head>
 
 <body>
 
-<!-- 🔴 HEADER — INLINE STYLE (FORCED BLACK) -->
-<div style="background:#000;color:#fff;padding:20px;font-size:26px;font-weight:bold;">
-  Karim Floors – Checkout
+<div class="header">
+  <div>Karim Floors</div>
+  <div class="cart-icon">
+    🧺
+    <span id="cartCount" class="cart-count">0</span>
+  </div>
 </div>
 
 <div class="cart">
-  <h2>Your Cart</h2>
+<h2>Your Cart</h2>
 
-  <table>
-    <thead>
-      <tr>
-        <th>Product</th>
-        <th>−</th>
-        <th>Qty</th>
-        <th>+</th>
-        <th>Price</th>
-        <th>Total</th>
-      </tr>
-    </thead>
-    <tbody id="cartBody">
-      <tr><td colspan="6">Cart is empty</td></tr>
-    </tbody>
-  </table>
+<table>
+<thead>
+<tr>
+<th>Product</th><th>−</th><th>Qty</th><th>+</th><th>Price</th><th>Total</th>
+</tr>
+</thead>
+<tbody id="cartBody">
+<tr><td colspan="6">Cart is empty</td></tr>
+</tbody>
+</table>
 
-  <h3 id="grandTotal">Total: 0</h3>
+<h3 id="grandTotal">Total: 0</h3>
 
-  <div class="buttons">
-    <button type="button" onclick="keepShopping()">← Keep shopping</button>
-    <!-- ✅ TEXT CHANGED HERE -->
-    <button type="button" onclick="payWithStripe()">Pay with Apple Pay / Card</button>
-  </div>
+<div class="buttons">
+  <button onclick="keepShopping()">← Keep shopping</button>
+
+  <button class="apple-btn" onclick="pay()">
+    <img src="https://upload.wikimedia.org/wikipedia/commons/f/fa/Apple_logo_black.svg">
+    Pay with Apple Pay / Card
+  </button>
+</div>
 </div>
 
 <script>
 const CART_KEY = 'karim_cart';
 
-/* READ PRODUCT FROM URL */
-const params = new URLSearchParams(window.location.search);
-const productName = params.get('name');
-const productPrice = Number(params.get('price'));
-
-/* ADD PRODUCT ONCE */
-if (productName && productPrice) {
-  let cart = JSON.parse(localStorage.getItem(CART_KEY)) || [];
-  let item = cart.find(p => p.name === productName);
-
-  if (item) item.qty++;
-  else cart.push({ name: productName, price: productPrice, qty: 1 });
-
-  localStorage.setItem(CART_KEY, JSON.stringify(cart));
-  history.replaceState({}, '', window.location.pathname);
+/* URL PRODUCT */
+const p = new URLSearchParams(location.search);
+const name = p.get('name');
+const price = Number(p.get('price'));
+if(name && price){
+  let c = JSON.parse(localStorage.getItem(CART_KEY)) || [];
+  let i = c.find(x=>x.name===name);
+  i ? i.qty++ : c.push({name,price,qty:1});
+  localStorage.setItem(CART_KEY,JSON.stringify(c));
+  history.replaceState({},'',location.pathname);
 }
 
-/* CART HELPERS */
-function getCart() {
-  return JSON.parse(localStorage.getItem(CART_KEY)) || [];
-}
-function saveCart(cart) {
-  localStorage.setItem(CART_KEY, JSON.stringify(cart));
-}
+function getCart(){ return JSON.parse(localStorage.getItem(CART_KEY)) || []; }
+function save(c){ localStorage.setItem(CART_KEY,JSON.stringify(c)); }
 
-/* QUANTITY CONTROLS */
-function increase(index) {
-  let cart = getCart();
-  cart[index].qty++;
-  saveCart(cart);
-  renderCart();
+function inc(i){ let c=getCart(); c[i].qty++; save(c); render(); }
+function dec(i){ let c=getCart(); c[i].qty--; if(c[i].qty<=0)c.splice(i,1); save(c); render(); }
+function setQty(i,v){
+  let q=parseInt(v); if(q<1||isNaN(q))q=1;
+  let c=getCart(); c[i].qty=q; save(c); render();
 }
 
-function decrease(index) {
-  let cart = getCart();
-  cart[index].qty--;
-  if (cart[index].qty <= 0) cart.splice(index, 1);
-  saveCart(cart);
-  renderCart();
-}
+function render(){
+  let c=getCart(), html='', total=0;
+  document.getElementById('cartCount').innerText = c.reduce((a,b)=>a+b.qty,0);
 
-function updateQty(index, value) {
-  let qty = parseInt(value);
-  if (isNaN(qty) || qty < 1) qty = 1;
-  let cart = getCart();
-  cart[index].qty = qty;
-  saveCart(cart);
-  renderCart();
-}
-
-/* RENDER */
-function renderCart() {
-  let cart = getCart();
-  let html = '';
-  let total = 0;
-
-  if (!cart.length) {
-    document.getElementById('cartBody').innerHTML =
-      '<tr><td colspan="6">Cart is empty</td></tr>';
-    document.getElementById('grandTotal').innerText = 'Total: 0';
-    return;
+  if(!c.length){
+    cartBody.innerHTML='<tr><td colspan="6">Cart is empty</td></tr>';
+    grandTotal.innerText='Total: 0'; return;
   }
 
-  cart.forEach((item, i) => {
-    let rowTotal = item.price * item.qty;
-    total += rowTotal;
-
-    html += `
-      <tr>
-        <td>${item.name}</td>
-        <td><button type="button" onclick="decrease(${i})">−</button></td>
-        <td>
-          <input class="qty-input" type="number" min="1"
-            value="${item.qty}"
-            onchange="updateQty(${i}, this.value)">
-        </td>
-        <td><button type="button" onclick="increase(${i})">+</button></td>
-        <td>${item.price}</td>
-        <td>${rowTotal}</td>
-      </tr>
-    `;
+  c.forEach((i,x)=>{
+    let t=i.qty*i.price; total+=t;
+    html+=`
+    <tr>
+      <td>${i.name}</td>
+      <td><button onclick="dec(${x})">−</button></td>
+      <td><input class="qty-input" type="number" value="${i.qty}" onchange="setQty(${x},this.value)"></td>
+      <td><button onclick="inc(${x})">+</button></td>
+      <td>${i.price}</td>
+      <td>${t}</td>
+    </tr>`;
   });
 
-  document.getElementById('cartBody').innerHTML = html;
-  document.getElementById('grandTotal').innerText = 'Total: ' + total;
+  cartBody.innerHTML=html;
+  grandTotal.innerText='Total: '+total;
 }
 
-/* NAV */
-function keepShopping() {
-  if (document.referrer) location.href = document.referrer;
-  else alert('No previous page');
+function keepShopping(){ if(document.referrer)location.href=document.referrer; }
+
+function pay(){
+  if(!getCart().length){ alert('Cart empty'); return; }
+  // Stripe redirect
+  location.href='https://buy.stripe.com/3cI4gy1S9aHT7Eq2Ab7Vm00';
 }
 
-/* STRIPE */
-function payWithStripe() {
-  if (!getCart().length) {
-    alert('Your cart is empty');
-    return;
-  }
-  location.href = 'https://buy.stripe.com/3cI4gy1S9aHT7Eq2Ab7Vm00';
-}
-
-/* INIT */
-renderCart();
+render();
 </script>
-
 </body>
 </html>
