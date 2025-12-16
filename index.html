@@ -41,10 +41,17 @@ button {
   background: black;
   color: white;
   border: none;
-  padding: 10px 16px;
-  margin: 5px 5px 0 0;
+  padding: 6px 12px;
   cursor: pointer;
-  font-size: 14px;
+}
+
+.qty-btn {
+  padding: 4px 10px;
+}
+
+.qty-input {
+  width: 50px;
+  text-align: center;
 }
 
 .buttons {
@@ -66,18 +73,18 @@ button {
         <th>Product</th>
         <th>−</th>
         <th>Qty</th>
+        <th>+</th>
         <th>Price</th>
         <th>Total</th>
       </tr>
     </thead>
     <tbody id="cartBody">
-      <tr><td colspan="5">Cart is empty</td></tr>
+      <tr><td colspan="6">Cart is empty</td></tr>
     </tbody>
   </table>
 
   <h3 id="grandTotal">Total: 0</h3>
 
-  <!-- ✅ BUTTONS ARE OUTSIDE TABLE -->
   <div class="buttons">
     <button type="button" onclick="keepShopping()">← Keep shopping</button>
     <button type="button" onclick="payWithStripe()">Pay with Stripe</button>
@@ -87,16 +94,16 @@ button {
 <script>
 const CART_KEY = 'karim_cart';
 
-/* ✅ READ PRODUCT FROM URL */
+/* 🔹 READ PRODUCT FROM URL */
 const params = new URLSearchParams(window.location.search);
 const productName = params.get('name');
 const productPrice = Number(params.get('price'));
 
-/* ✅ ADD PRODUCT ONCE */
+/* 🔹 ADD PRODUCT ONCE FROM URL */
 if (productName && productPrice) {
   let cart = JSON.parse(localStorage.getItem(CART_KEY)) || [];
-
   let item = cart.find(p => p.name === productName);
+
   if (item) {
     item.qty += 1;
   } else {
@@ -105,7 +112,7 @@ if (productName && productPrice) {
 
   localStorage.setItem(CART_KEY, JSON.stringify(cart));
 
-  // remove params to avoid duplicate
+  // Prevent duplicate add on refresh
   history.replaceState({}, '', window.location.pathname);
 }
 
@@ -118,17 +125,37 @@ function saveCart(cart) {
   localStorage.setItem(CART_KEY, JSON.stringify(cart));
 }
 
-/* REMOVE ONE */
-function removeOne(name) {
+/* QUANTITY CONTROLS */
+function increase(name) {
   let cart = getCart();
-  let item = cart.find(p => p.name === name);
+  cart.find(i => i.name === name).qty++;
+  saveCart(cart);
+  renderCart();
+}
+
+function decrease(name) {
+  let cart = getCart();
+  let item = cart.find(i => i.name === name);
   if (!item) return;
 
   item.qty--;
   if (item.qty <= 0) {
-    cart = cart.filter(p => p.name !== name);
+    cart = cart.filter(i => i.name !== name);
   }
 
+  saveCart(cart);
+  renderCart();
+}
+
+function updateQty(name, value) {
+  let qty = parseInt(value);
+  if (isNaN(qty) || qty < 1) qty = 1;
+
+  let cart = getCart();
+  let item = cart.find(i => i.name === name);
+  if (!item) return;
+
+  item.qty = qty;
   saveCart(cart);
   renderCart();
 }
@@ -141,7 +168,7 @@ function renderCart() {
 
   if (cart.length === 0) {
     document.getElementById('cartBody').innerHTML =
-      '<tr><td colspan="5">Cart is empty</td></tr>';
+      '<tr><td colspan="6">Cart is empty</td></tr>';
     document.getElementById('grandTotal').innerText = 'Total: 0';
     return;
   }
@@ -153,8 +180,13 @@ function renderCart() {
     html += `
       <tr>
         <td>${item.name}</td>
-        <td><button type="button" onclick="removeOne('${item.name}')">−</button></td>
-        <td>${item.qty}</td>
+        <td><button class="qty-btn" onclick="decrease('${item.name}')">−</button></td>
+        <td>
+          <input class="qty-input" type="number" min="1"
+            value="${item.qty}"
+            onchange="updateQty('${item.name}', this.value)">
+        </td>
+        <td><button class="qty-btn" onclick="increase('${item.name}')">+</button></td>
         <td>${item.price}</td>
         <td>${rowTotal}</td>
       </tr>
@@ -165,7 +197,7 @@ function renderCart() {
   document.getElementById('grandTotal').innerText = 'Total: ' + total;
 }
 
-/* ✅ KEEP SHOPPING */
+/* NAVIGATION */
 function keepShopping() {
   if (document.referrer) {
     window.location.href = document.referrer;
@@ -174,15 +206,13 @@ function keepShopping() {
   }
 }
 
-/* ✅ STRIPE PAYMENT */
+/* STRIPE */
 function payWithStripe() {
-  const cart = getCart();
-  if (cart.length === 0) {
+  if (getCart().length === 0) {
     alert('Your cart is empty');
     return;
   }
 
-  // Redirect to YOUR Stripe link
   window.location.href =
     'https://buy.stripe.com/3cI4gy1S9aHT7Eq2Ab7Vm00';
 }
