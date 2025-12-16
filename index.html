@@ -1,8 +1,9 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Karim Floors</title>
+<title>Karim Floors – Checkout</title>
 
 <style>
 body {
@@ -13,47 +14,35 @@ body {
 .header {
   background: #bcd0f7;
   padding: 20px;
-  font-size: 28px;
+  font-size: 26px;
   font-weight: bold;
 }
 
-.product {
-  background: #bcd0f7;
+.cart {
   padding: 20px;
-  border-top: 1px solid #aabbe0;
 }
 
-.product h3 {
-  margin: 0 0 10px 0;
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th, td {
+  border-bottom: 1px solid #ddd;
+  padding: 8px;
+  text-align: center;
+}
+
+th {
+  text-align: left;
 }
 
 button {
   background: black;
   color: white;
   border: none;
-  padding: 5px 10px;
+  padding: 4px 10px;
   cursor: pointer;
-}
-
-.cart {
-  padding: 20px;
-  border-top: 2px solid black;
-}
-
-.cart table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-top: 10px;
-}
-
-.cart th, .cart td {
-  border-bottom: 1px solid #ddd;
-  padding: 8px;
-  text-align: center;
-}
-
-.cart th {
-  text-align: left;
 }
 
 .qty-btn {
@@ -64,30 +53,10 @@ button {
 
 <body>
 
-<div class="header">Karim Floors</div>
+<div class="header">Karim Floors – Checkout</div>
 
-<!-- PRODUCTS -->
-<div class="product">
-  <h3>Laminate Oak</h3>
-  <p>Price: 150</p>
-  <button onclick="addToCart('Laminate Oak',150)">Add</button>
-</div>
-
-<div class="product">
-  <h3>Laminate Walnut</h3>
-  <p>Price: 180</p>
-  <button onclick="addToCart('Laminate Walnut',180)">Add</button>
-</div>
-
-<div class="product">
-  <h3>Laminate Maple</h3>
-  <p>Price: 200</p>
-  <button onclick="addToCart('Laminate Maple',200)">Add</button>
-</div>
-
-<!-- CART -->
 <div class="cart">
-  <h2>Cart</h2>
+  <h2>Your Cart</h2>
 
   <table>
     <thead>
@@ -100,9 +69,7 @@ button {
       </tr>
     </thead>
     <tbody id="cartBody">
-      <tr>
-        <td colspan="5">Cart is empty</td>
-      </tr>
+      <tr><td colspan="5">Cart is empty</td></tr>
     </tbody>
   </table>
 
@@ -112,6 +79,29 @@ button {
 <script>
 const CART_KEY = 'karim_cart';
 
+/* 1️⃣ READ PRODUCT FROM URL (IF EXISTS) */
+const params = new URLSearchParams(window.location.search);
+const name = params.get('name');
+const price = parseFloat(params.get('price'));
+
+/* 2️⃣ ADD PRODUCT TO CART (COMBINE, NOT REPLACE) */
+if (name && price) {
+  let cart = JSON.parse(localStorage.getItem(CART_KEY)) || [];
+
+  let item = cart.find(p => p.name === name);
+  if (item) {
+    item.qty += 1;
+  } else {
+    cart.push({ name, price, qty: 1 });
+  }
+
+  localStorage.setItem(CART_KEY, JSON.stringify(cart));
+
+  // 🔒 remove params so refresh won't re-add
+  history.replaceState({}, '', window.location.pathname);
+}
+
+/* CART HELPERS */
 function getCart() {
   return JSON.parse(localStorage.getItem(CART_KEY)) || [];
 }
@@ -120,17 +110,7 @@ function saveCart(cart) {
   localStorage.setItem(CART_KEY, JSON.stringify(cart));
 }
 
-function addToCart(name, price) {
-  let cart = getCart();
-  let item = cart.find(p => p.name === name);
-
-  if (item) item.qty++;
-  else cart.push({ name, price, qty: 1 });
-
-  saveCart(cart);
-  renderCart();
-}
-
+/* 3️⃣ REMOVE ONE ITEM */
 function removeOne(name) {
   let cart = getCart();
   let item = cart.find(p => p.name === name);
@@ -145,10 +125,11 @@ function removeOne(name) {
   renderCart();
 }
 
+/* 4️⃣ RENDER CART */
 function renderCart() {
   let cart = getCart();
-  let body = '';
   let total = 0;
+  let html = '';
 
   if (cart.length === 0) {
     document.getElementById('cartBody').innerHTML =
@@ -161,7 +142,7 @@ function renderCart() {
     let rowTotal = item.price * item.qty;
     total += rowTotal;
 
-    body += `
+    html += `
       <tr>
         <td>${item.name}</td>
         <td>
@@ -174,10 +155,11 @@ function renderCart() {
     `;
   });
 
-  document.getElementById('cartBody').innerHTML = body;
+  document.getElementById('cartBody').innerHTML = html;
   document.getElementById('grandTotal').innerText = 'Total: ' + total;
 }
 
+/* INITIAL RENDER */
 renderCart();
 </script>
 
