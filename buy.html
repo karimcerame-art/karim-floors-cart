@@ -7,8 +7,23 @@
 
 <body>
 
-<h1>BUY PAGE WORKS ✅</h1>
-<p>If you see this page, GitHub Pages is set up correctly.</p>
+<h2>Checkout</h2>
+
+<div id="product"></div>
+
+<script>
+const params = new URLSearchParams(window.location.search);
+
+const name  = params.get("name");
+const price = params.get("price");
+const qty   = params.get("qty");
+
+document.getElementById("product").innerHTML = `
+  <p><b>Product:</b> ${name}</p>
+  <p><b>Price:</b> ${price} MAD</p>
+  <p><b>Quantity:</b> ${qty}</p>
+`;
+</script>
 
 </body>
 </html>
