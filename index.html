@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -5,22 +6,44 @@
 <title>Product</title>
 </head>
 
-<body style="font-family:Arial, sans-serif; max-width:600px; margin:40px;">
+<body style="
+  font-family: Arial, sans-serif;
+  max-width: 600px;
+  margin: 20px;
+">
 
-<h1 id="name">Laminate Floor – 10Cl52799</h1>
+<!-- 🔙 REMOVE / GO BACK (ALWAYS VISIBLE) -->
+<button
+  onclick="goBack()"
+  style="
+    background:none;
+    border:none;
+    color:#000;
+    font-size:14px;
+    text-decoration:underline;
+    cursor:pointer;
+    margin-bottom:15px;
+  "
+>
+  ← Remove product / Go back
+</button>
 
-<p>
-  Price: <span id="price">265</span> MAD
+<h1 id="name" style="font-size:26px; margin-bottom:10px;">
+  Product
+</h1>
+
+<p style="font-size:16px; margin-bottom:20px;">
+  Price: <span id="price"></span> MAD
 </p>
 
-<!-- 🔥 INLINE STYLE = GOOGLE SITES CANNOT OVERRIDE -->
+<!-- 🖤 BLACK BUY NOW BUTTON -->
 <button
   onclick="goBuy()"
   style="
     background:#000 !important;
     color:#fff !important;
     border:none !important;
-    padding:8px 18px !important;
+    padding:10px 20px !important;
     font-size:14px !important;
     border-radius:6px !important;
     cursor:pointer !important;
@@ -41,6 +64,11 @@ document.getElementById("price").textContent = price;
 function goBuy() {
   window.location.href =
     "buy.html?name=" + encodeURIComponent(name) + "&price=" + price;
+}
+
+function goBack() {
+  // Works in Google Sites + normal browser
+  window.history.back();
 }
 </script>
 
