@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -12,39 +11,46 @@ body {
   margin: auto;
   padding: 20px;
 }
+
 .box {
   border: 1px solid #ddd;
   padding: 20px;
-  border-radius: 10px;
+  border-radius: 12px;
 }
+
 .qty {
   display: flex;
+  justify-content: center;
   align-items: center;
-  gap: 15px;
+  gap: 16px;
   margin: 15px 0;
 }
+
 .qty button {
-  width: 40px;
-  height: 40px;
+  width: 38px;
+  height: 38px;
   font-size: 22px;
   border: none;
   background: #000;
   color: #fff;
-  border-radius: 6px;
+  border-radius: 8px;
+  cursor: pointer;
 }
-select {
-  padding: 6px;
-  margin-top: 10px;
-}
-.pay-btn {
-  background: black;
-  color: white;
-  width: 100%;
-  padding: 16px;
-  font-size: 18px;
-  border: none;
-  border-radius: 12px;
+
+.apple-btn {
   margin-top: 20px;
+  width: 100%;
+  background: #000;
+  color: #fff;
+  padding: 16px;
+  font-size: 17px;
+  border: none;
+  border-radius: 999px;
+  cursor: pointer;
+}
+
+.apple-btn:hover {
+  opacity: 0.9;
 }
 </style>
 </head>
@@ -63,37 +69,23 @@ select {
     <button onclick="changeQty(1)">+</button>
   </div>
 
-  <label>Currency:</label><br>
-  <select id="currency" onchange="updateTotal()">
-    <option value="MAD">MAD</option>
-    <option value="EUR">EUR</option>
-    <option value="USD">USD</option>
-  </select>
-
   <p><b>Total:</b> <span id="total"></span></p>
 </div>
 
-<button class="pay-btn" onclick="payStripe()">
-   Pay with Apple Pay / Card
+<button class="apple-btn" onclick="payStripe()">
+  Buy Now
 </button>
 
 <script>
 const params = new URLSearchParams(window.location.search);
 
 const name = params.get("name") || "Product";
-const basePrice = Number(params.get("price")) || 0;
+const unitPrice = Number(params.get("price")) || 0;
 
 let qty = 1;
 
-// simple exchange rates (edit anytime)
-const rates = {
-  MAD: 1,
-  EUR: 0.092,
-  USD: 0.10
-};
-
 document.getElementById("name").textContent = name;
-document.getElementById("unit").textContent = basePrice + " MAD";
+document.getElementById("unit").textContent = unitPrice + " MAD";
 
 function changeQty(n) {
   qty = Math.max(1, qty + n);
@@ -102,10 +94,8 @@ function changeQty(n) {
 }
 
 function updateTotal() {
-  const cur = document.getElementById("currency").value;
-  const total = basePrice * qty * rates[cur];
   document.getElementById("total").textContent =
-    total.toFixed(2) + " " + cur;
+    (unitPrice * qty).toFixed(2) + " MAD";
 }
 
 updateTotal();
