@@ -9,24 +9,34 @@
 <body style="
   font-family: Arial, sans-serif;
   max-width: 600px;
-  margin: 20px;
+  margin: 60px 20px 20px;
 ">
 
-<!-- 🔙 REMOVE / GO BACK (ALWAYS VISIBLE) -->
-<button
-  onclick="goBack()"
-  style="
-    background:none;
-    border:none;
-    color:#000;
-    font-size:14px;
-    text-decoration:underline;
-    cursor:pointer;
-    margin-bottom:15px;
-  "
->
-  ← Remove product / Go back
-</button>
+<!-- 🔒 FIXED TOP BAR (ALWAYS VISIBLE) -->
+<div style="
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  background: #fff;
+  border-bottom: 1px solid #ddd;
+  padding: 10px 20px;
+  z-index: 9999;
+">
+  <button
+    onclick="goBack()"
+    style="
+      background: none;
+      border: none;
+      color: #000;
+      font-size: 14px;
+      text-decoration: underline;
+      cursor: pointer;
+    "
+  >
+    ← Remove product / Go back
+  </button>
+</div>
 
 <h1 id="name" style="font-size:26px; margin-bottom:10px;">
   Product
@@ -36,7 +46,6 @@
   Price: <span id="price"></span> MAD
 </p>
 
-<!-- 🖤 BLACK BUY NOW BUTTON -->
 <button
   onclick="goBuy()"
   style="
@@ -67,8 +76,8 @@ function goBuy() {
 }
 
 function goBack() {
-  // Works in Google Sites + normal browser
-  window.history.back();
+  // Works everywhere (iframe-safe)
+  window.location.href = document.referrer || "/";
 }
 </script>
 
