@@ -2,27 +2,60 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Buy Page</title>
+<title>Checkout</title>
+
+<style>
+body {
+  font-family: Arial, sans-serif;
+  max-width: 600px;
+  margin: auto;
+  padding: 20px;
+}
+.box {
+  border: 1px solid #ddd;
+  padding: 20px;
+}
+.pay-btn {
+  background: black;
+  color: white;
+  padding: 15px 30px;
+  border: none;
+  font-size: 18px;
+  cursor: pointer;
+}
+.pay-btn:hover {
+  opacity: 0.85;
+}
+</style>
 </head>
 
 <body>
 
 <h2>Checkout</h2>
 
-<div id="product"></div>
+<div class="box" id="product"></div>
+
+<br>
+<button class="pay-btn" onclick="payStripe()">
+  Pay with Stripe
+</button>
 
 <script>
 const params = new URLSearchParams(window.location.search);
 
-const name  = params.get("name");
-const price = params.get("price");
-const qty   = params.get("qty");
+const name  = params.get("name") || "Laminate Floor – 10Cl52799";
+const price = params.get("price") || "265";
+const qty   = params.get("qty") || "1";
 
 document.getElementById("product").innerHTML = `
   <p><b>Product:</b> ${name}</p>
   <p><b>Price:</b> ${price} MAD</p>
   <p><b>Quantity:</b> ${qty}</p>
 `;
+
+function payStripe() {
+  window.location.href = "https://buy.stripe.com/3cI4gy1S9aHT7Eq2Ab7Vm00";
+}
 </script>
 
 </body>
