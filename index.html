@@ -1,3 +1,5 @@
+
+ 
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -130,14 +132,14 @@ function render(){
   grandTotal.innerText='Total: '+total;
 }
 
-/* ✅ FIXED KEEP SHOPPING */
+/* ✅ FINAL FIX — EXIT GOOGLE SITES IFRAME */
 function keepShopping(){
-  window.location.href = 'https://www.karim-floors.com';
+  window.top.location.href = 'https://www.karim-floors.com';
 }
 
 function pay(){
   if(!getCart().length){ alert('Cart empty'); return; }
-  location.href='https://buy.stripe.com/3cI4gy1S9aHT7Eq2Ab7Vm00';
+  window.top.location.href = 'https://buy.stripe.com/3cI4gy1S9aHT7Eq2Ab7Vm00';
 }
 
 render();
