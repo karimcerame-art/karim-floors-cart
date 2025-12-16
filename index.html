@@ -2,21 +2,26 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Karim Floors – Cart</title>
+<title>Karim Floors – Product</title>
 </head>
 
 <body>
 
 <h2>Laminate Floor – 10Cl52799</h2>
-<p>Price: 265 MAD</p>
+<p><b>Price:</b> 265 MAD</p>
 
 <button onclick="goBuy()">Buy Now</button>
 
 <script>
 function goBuy() {
-  window.location.href = "buy.html";
+  const name = encodeURIComponent("10Cl52799 per m²");
+  const price = 265;
+  const qty = 1;
+
+  window.location.href =
+    `buy.html?name=${name}&price=${price}&qty=${qty}`;
 }
 </script>
 
 </body>
-  </html>
+</html>
