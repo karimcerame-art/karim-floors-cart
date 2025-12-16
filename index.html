@@ -7,64 +7,106 @@
 <style>
 body {
   font-family: Arial, sans-serif;
-  max-width: 900px;
-  margin: auto;
+  margin: 0;
+}
+
+.header {
+  background: #bcd0f7;
   padding: 20px;
+  font-size: 28px;
+  font-weight: bold;
 }
 
 .product {
-  border: 1px solid #ddd;
-  padding: 15px;
-  margin-bottom: 15px;
-  position: relative;
+  background: #bcd0f7;
+  padding: 20px;
+  border-top: 1px solid #aabbe0;
+}
+
+.product h3 {
+  margin: 0 0 10px 0;
 }
 
 button {
   background: black;
   color: white;
   border: none;
-  padding: 6px 10px;
+  padding: 5px 10px;
   cursor: pointer;
-  margin-right: 5px;
 }
 
-#cart {
-  border-top: 2px solid #000;
-  margin-top: 30px;
-  padding-top: 15px;
+.cart {
+  padding: 20px;
+  border-top: 2px solid black;
+}
+
+.cart table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+}
+
+.cart th, .cart td {
+  border-bottom: 1px solid #ddd;
+  padding: 8px;
+  text-align: center;
+}
+
+.cart th {
+  text-align: left;
+}
+
+.qty-btn {
+  padding: 2px 8px;
 }
 </style>
 </head>
 
 <body>
 
-<h1>Karim Floors</h1>
+<div class="header">Karim Floors</div>
 
-<!-- PRODUCTS (NO LINKS) -->
+<!-- PRODUCTS -->
 <div class="product">
   <h3>Laminate Oak</h3>
   <p>Price: 150</p>
-  <button type="button" onclick="addToCart(event,'Laminate Oak',150)">Add</button>
+  <button onclick="addToCart('Laminate Oak',150)">Add</button>
 </div>
 
 <div class="product">
   <h3>Laminate Walnut</h3>
   <p>Price: 180</p>
-  <button type="button" onclick="addToCart(event,'Laminate Walnut',180)">Add</button>
+  <button onclick="addToCart('Laminate Walnut',180)">Add</button>
 </div>
 
 <div class="product">
   <h3>Laminate Maple</h3>
   <p>Price: 200</p>
-  <button type="button" onclick="addToCart(event,'Laminate Maple',200)">Add</button>
+  <button onclick="addToCart('Laminate Maple',200)">Add</button>
 </div>
 
 <!-- CART -->
-<div id="cart">
+<div class="cart">
   <h2>Cart</h2>
-  <div id="cartItems"></div>
-  <h3 id="total">Total: 0</h3>
-  <button type="button" onclick="checkout()">Checkout</button>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Product</th>
+        <th>−</th>
+        <th>Qty</th>
+        <th>Price</th>
+        <th>Total</th>
+      </tr>
+    </thead>
+    <tbody id="cartBody">
+      <tr>
+        <td colspan="5">Cart is empty</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3 id="grandTotal">Total: 0</h3>
 </div>
 
 <script>
@@ -78,18 +120,12 @@ function saveCart(cart) {
   localStorage.setItem(CART_KEY, JSON.stringify(cart));
 }
 
-function addToCart(e, name, price) {
-  e.preventDefault();
-  e.stopPropagation();
-
+function addToCart(name, price) {
   let cart = getCart();
   let item = cart.find(p => p.name === name);
 
-  if (item) {
-    item.qty++;
-  } else {
-    cart.push({ name, price, qty: 1 });
-  }
+  if (item) item.qty++;
+  else cart.push({ name, price, qty: 1 });
 
   saveCart(cart);
   renderCart();
@@ -109,52 +145,41 @@ function removeOne(name) {
   renderCart();
 }
 
-function removeAll(name) {
-  let cart = getCart().filter(p => p.name !== name);
-  saveCart(cart);
-  renderCart();
-}
-
 function renderCart() {
   let cart = getCart();
+  let body = '';
   let total = 0;
-  let html = '';
 
   if (cart.length === 0) {
-    document.getElementById('cartItems').innerHTML = 'Cart is empty';
-    document.getElementById('total').innerText = 'Total: 0';
+    document.getElementById('cartBody').innerHTML =
+      '<tr><td colspan="5">Cart is empty</td></tr>';
+    document.getElementById('grandTotal').innerText = 'Total: 0';
     return;
   }
 
   cart.forEach(item => {
-    let subtotal = item.price * item.qty;
-    total += subtotal;
+    let rowTotal = item.price * item.qty;
+    total += rowTotal;
 
-    html += `
-      <p>
-        <strong>${item.name}</strong><br>
-        ${item.qty} × ${item.price} = ${subtotal}
-        <button onclick="addToCart(event,'${item.name}',${item.price})">+</button>
-        <button onclick="removeOne('${item.name}')">−</button>
-        <button onclick="removeAll('${item.name}')">Remove</button>
-      </p>
+    body += `
+      <tr>
+        <td>${item.name}</td>
+        <td>
+          <button class="qty-btn" onclick="removeOne('${item.name}')">−</button>
+        </td>
+        <td>${item.qty}</td>
+        <td>${item.price}</td>
+        <td>${rowTotal}</td>
+      </tr>
     `;
   });
 
-  document.getElementById('cartItems').innerHTML = html;
-  document.getElementById('total').innerText = 'Total: ' + total;
-}
-
-function checkout() {
-  if (getCart().length === 0) {
-    alert('Cart is empty');
-    return;
-  }
-  alert('Ready for Stripe checkout');
+  document.getElementById('cartBody').innerHTML = body;
+  document.getElementById('grandTotal').innerText = 'Total: ' + total;
 }
 
 renderCart();
 </script>
 
 </body>
-</html> 
+</html>
