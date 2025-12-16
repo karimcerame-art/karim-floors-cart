@@ -10,15 +10,6 @@ body {
   margin: 0;
 }
 
-/* 🔴 HEADER NOW BLACK */
-.header {
-  background: #000;
-  color: #fff;
-  padding: 20px;
-  font-size: 26px;
-  font-weight: bold;
-}
-
 .cart {
   padding: 20px;
 }
@@ -61,7 +52,10 @@ button {
 
 <body>
 
-<div class="header">Karim Floors – Checkout</div>
+<!-- 🔴 HEADER — INLINE STYLE (FORCED BLACK) -->
+<div style="background:#000;color:#fff;padding:20px;font-size:26px;font-weight:bold;">
+  Karim Floors – Checkout
+</div>
 
 <div class="cart">
   <h2>Your Cart</h2>
@@ -86,6 +80,7 @@ button {
 
   <div class="buttons">
     <button type="button" onclick="keepShopping()">← Keep shopping</button>
+    <!-- ✅ TEXT CHANGED HERE -->
     <button type="button" onclick="payWithStripe()">Pay with Apple Pay / Card</button>
   </div>
 </div>
@@ -103,15 +98,10 @@ if (productName && productPrice) {
   let cart = JSON.parse(localStorage.getItem(CART_KEY)) || [];
   let item = cart.find(p => p.name === productName);
 
-  if (item) {
-    item.qty++;
-  } else {
-    cart.push({ name: productName, price: productPrice, qty: 1 });
-  }
+  if (item) item.qty++;
+  else cart.push({ name: productName, price: productPrice, qty: 1 });
 
   localStorage.setItem(CART_KEY, JSON.stringify(cart));
-
-  // Prevent duplicate add on refresh
   history.replaceState({}, '', window.location.pathname);
 }
 
@@ -119,7 +109,6 @@ if (productName && productPrice) {
 function getCart() {
   return JSON.parse(localStorage.getItem(CART_KEY)) || [];
 }
-
 function saveCart(cart) {
   localStorage.setItem(CART_KEY, JSON.stringify(cart));
 }
@@ -135,9 +124,7 @@ function increase(index) {
 function decrease(index) {
   let cart = getCart();
   cart[index].qty--;
-  if (cart[index].qty <= 0) {
-    cart.splice(index, 1);
-  }
+  if (cart[index].qty <= 0) cart.splice(index, 1);
   saveCart(cart);
   renderCart();
 }
@@ -145,14 +132,13 @@ function decrease(index) {
 function updateQty(index, value) {
   let qty = parseInt(value);
   if (isNaN(qty) || qty < 1) qty = 1;
-
   let cart = getCart();
   cart[index].qty = qty;
   saveCart(cart);
   renderCart();
 }
 
-/* RENDER CART */
+/* RENDER */
 function renderCart() {
   let cart = getCart();
   let html = '';
@@ -172,17 +158,13 @@ function renderCart() {
     html += `
       <tr>
         <td>${item.name}</td>
-        <td>
-          <button type="button" onclick="decrease(${i})">−</button>
-        </td>
+        <td><button type="button" onclick="decrease(${i})">−</button></td>
         <td>
           <input class="qty-input" type="number" min="1"
             value="${item.qty}"
             onchange="updateQty(${i}, this.value)">
         </td>
-        <td>
-          <button type="button" onclick="increase(${i})">+</button>
-        </td>
+        <td><button type="button" onclick="increase(${i})">+</button></td>
         <td>${item.price}</td>
         <td>${rowTotal}</td>
       </tr>
@@ -193,24 +175,19 @@ function renderCart() {
   document.getElementById('grandTotal').innerText = 'Total: ' + total;
 }
 
-/* NAVIGATION */
+/* NAV */
 function keepShopping() {
-  if (document.referrer) {
-    window.location.href = document.referrer;
-  } else {
-    alert('No previous page');
-  }
+  if (document.referrer) location.href = document.referrer;
+  else alert('No previous page');
 }
 
-/* STRIPE (APPLE PAY / CARD) */
+/* STRIPE */
 function payWithStripe() {
   if (!getCart().length) {
     alert('Your cart is empty');
     return;
   }
-
-  window.location.href =
-    'https://buy.stripe.com/3cI4gy1S9aHT7Eq2Ab7Vm00';
+  location.href = 'https://buy.stripe.com/3cI4gy1S9aHT7Eq2Ab7Vm00';
 }
 
 /* INIT */
