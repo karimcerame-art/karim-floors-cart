@@ -3,50 +3,29 @@
 <head>
 <meta charset="UTF-8">
 <title>Product</title>
-
-<style>
-body {
-  font-family: Arial, sans-serif;
-  max-width: 600px;
-  margin: 40px;
-}
-
-h1 {
-  font-size: 26px;
-  margin-bottom: 10px;
-}
-
-.price {
-  font-size: 16px;
-  margin-bottom: 20px;
-}
-
-/* 🔥 BLACK BUY NOW BUTTON */
-.buy-btn {
-  background: #000;
-  color: #fff;
-  border: none;
-  padding: 8px 16px;
-  font-size: 14px;
-  border-radius: 6px;
-  cursor: pointer;
-}
-
-.buy-btn:hover {
-  opacity: 0.9;
-}
-</style>
 </head>
 
-<body>
+<body style="font-family:Arial, sans-serif; max-width:600px; margin:40px;">
 
 <h1 id="name">Laminate Floor – 10Cl52799</h1>
 
-<div class="price">
+<p>
   Price: <span id="price">265</span> MAD
-</div>
+</p>
 
-<button class="buy-btn" onclick="goBuy()">
+<!-- 🔥 INLINE STYLE = GOOGLE SITES CANNOT OVERRIDE -->
+<button
+  onclick="goBuy()"
+  style="
+    background:#000 !important;
+    color:#fff !important;
+    border:none !important;
+    padding:8px 18px !important;
+    font-size:14px !important;
+    border-radius:6px !important;
+    cursor:pointer !important;
+  "
+>
   Buy Now
 </button>
 
@@ -61,7 +40,7 @@ document.getElementById("price").textContent = price;
 
 function goBuy() {
   window.location.href =
-    `buy.html?name=${encodeURIComponent(name)}&price=${price}`;
+    "buy.html?name=" + encodeURIComponent(name) + "&price=" + price;
 }
 </script>
 
