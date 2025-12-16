@@ -130,11 +130,13 @@ function render(){
   grandTotal.innerText='Total: '+total;
 }
 
-function keepShopping(){ if(document.referrer)location.href=document.referrer; }
+/* ✅ FIXED KEEP SHOPPING */
+function keepShopping(){
+  window.location.href = 'https://www.karim-floors.com';
+}
 
 function pay(){
   if(!getCart().length){ alert('Cart empty'); return; }
-  // Stripe redirect
   location.href='https://buy.stripe.com/3cI4gy1S9aHT7Eq2Ab7Vm00';
 }
 
