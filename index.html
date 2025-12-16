@@ -5,58 +5,29 @@
 <title>Karim Floors – Checkout</title>
 
 <style>
-body {
-  font-family: Arial, sans-serif;
-  margin: 0;
-}
+body { font-family: Arial, sans-serif; margin: 0; }
+.header { background:#bcd0f7; padding:20px; font-size:26px; font-weight:bold; }
+.cart { padding:20px; }
 
-.header {
-  background: #bcd0f7;
-  padding: 20px;
-  font-size: 26px;
-  font-weight: bold;
-}
-
-.cart {
-  padding: 20px;
-}
-
-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-bottom: 15px;
-}
-
-th, td {
-  border-bottom: 1px solid #ddd;
-  padding: 8px;
-  text-align: center;
-}
-
-th {
-  text-align: left;
-}
+table { width:100%; border-collapse:collapse; margin-bottom:15px; }
+th,td { border-bottom:1px solid #ddd; padding:8px; text-align:center; }
+th { text-align:left; }
 
 button {
-  background: black;
-  color: white;
-  border: none;
-  padding: 6px 12px;
-  cursor: pointer;
-}
-
-.qty-btn {
-  padding: 4px 10px;
+  background:black;
+  color:white;
+  border:none;
+  padding:6px 14px;
+  cursor:pointer;
+  font-size:14px;
 }
 
 .qty-input {
-  width: 50px;
-  text-align: center;
+  width:55px;
+  text-align:center;
 }
 
-.buttons {
-  margin-top: 20px;
-}
+.buttons { margin-top:20px; }
 </style>
 </head>
 
@@ -65,54 +36,49 @@ button {
 <div class="header">Karim Floors – Checkout</div>
 
 <div class="cart">
-  <h2>Your Cart</h2>
+<h2>Your Cart</h2>
 
-  <table>
-    <thead>
-      <tr>
-        <th>Product</th>
-        <th>−</th>
-        <th>Qty</th>
-        <th>+</th>
-        <th>Price</th>
-        <th>Total</th>
-      </tr>
-    </thead>
-    <tbody id="cartBody">
-      <tr><td colspan="6">Cart is empty</td></tr>
-    </tbody>
-  </table>
+<table>
+<thead>
+<tr>
+  <th>Product</th>
+  <th>−</th>
+  <th>Qty</th>
+  <th>+</th>
+  <th>Price</th>
+  <th>Total</th>
+</tr>
+</thead>
+<tbody id="cartBody">
+<tr><td colspan="6">Cart is empty</td></tr>
+</tbody>
+</table>
 
-  <h3 id="grandTotal">Total: 0</h3>
+<h3 id="grandTotal">Total: 0</h3>
 
-  <div class="buttons">
-    <button type="button" onclick="keepShopping()">← Keep shopping</button>
-    <button type="button" onclick="payWithStripe()">Pay with Stripe</button>
-  </div>
+<div class="buttons">
+  <button type="button" onclick="keepShopping()">← Keep shopping</button>
+  <button type="button" onclick="payWithStripe()">Pay with Stripe</button>
+</div>
 </div>
 
 <script>
 const CART_KEY = 'karim_cart';
 
-/* 🔹 READ PRODUCT FROM URL */
+/* READ PRODUCT FROM URL */
 const params = new URLSearchParams(window.location.search);
 const productName = params.get('name');
 const productPrice = Number(params.get('price'));
 
-/* 🔹 ADD PRODUCT ONCE FROM URL */
+/* ADD PRODUCT ONCE */
 if (productName && productPrice) {
   let cart = JSON.parse(localStorage.getItem(CART_KEY)) || [];
   let item = cart.find(p => p.name === productName);
 
-  if (item) {
-    item.qty += 1;
-  } else {
-    cart.push({ name: productName, price: productPrice, qty: 1 });
-  }
+  if (item) item.qty++;
+  else cart.push({ name: productName, price: productPrice, qty: 1 });
 
   localStorage.setItem(CART_KEY, JSON.stringify(cart));
-
-  // Prevent duplicate add on refresh
   history.replaceState({}, '', window.location.pathname);
 }
 
@@ -120,42 +86,31 @@ if (productName && productPrice) {
 function getCart() {
   return JSON.parse(localStorage.getItem(CART_KEY)) || [];
 }
-
 function saveCart(cart) {
   localStorage.setItem(CART_KEY, JSON.stringify(cart));
 }
 
 /* QUANTITY CONTROLS */
-function increase(name) {
+function increase(index) {
   let cart = getCart();
-  cart.find(i => i.name === name).qty++;
+  cart[index].qty++;
   saveCart(cart);
   renderCart();
 }
 
-function decrease(name) {
+function decrease(index) {
   let cart = getCart();
-  let item = cart.find(i => i.name === name);
-  if (!item) return;
-
-  item.qty--;
-  if (item.qty <= 0) {
-    cart = cart.filter(i => i.name !== name);
-  }
-
+  cart[index].qty--;
+  if (cart[index].qty <= 0) cart.splice(index, 1);
   saveCart(cart);
   renderCart();
 }
 
-function updateQty(name, value) {
+function updateQty(index, value) {
   let qty = parseInt(value);
   if (isNaN(qty) || qty < 1) qty = 1;
-
   let cart = getCart();
-  let item = cart.find(i => i.name === name);
-  if (!item) return;
-
-  item.qty = qty;
+  cart[index].qty = qty;
   saveCart(cart);
   renderCart();
 }
@@ -166,27 +121,31 @@ function renderCart() {
   let html = '';
   let total = 0;
 
-  if (cart.length === 0) {
+  if (!cart.length) {
     document.getElementById('cartBody').innerHTML =
       '<tr><td colspan="6">Cart is empty</td></tr>';
     document.getElementById('grandTotal').innerText = 'Total: 0';
     return;
   }
 
-  cart.forEach(item => {
+  cart.forEach((item, i) => {
     let rowTotal = item.price * item.qty;
     total += rowTotal;
 
     html += `
       <tr>
         <td>${item.name}</td>
-        <td><button class="qty-btn" onclick="decrease('${item.name}')">−</button></td>
+        <td>
+          <button type="button" onclick="decrease(${i})">−</button>
+        </td>
         <td>
           <input class="qty-input" type="number" min="1"
             value="${item.qty}"
-            onchange="updateQty('${item.name}', this.value)">
+            onchange="updateQty(${i}, this.value)">
         </td>
-        <td><button class="qty-btn" onclick="increase('${item.name}')">+</button></td>
+        <td>
+          <button type="button" onclick="increase(${i})">+</button>
+        </td>
         <td>${item.price}</td>
         <td>${rowTotal}</td>
       </tr>
@@ -199,22 +158,17 @@ function renderCart() {
 
 /* NAVIGATION */
 function keepShopping() {
-  if (document.referrer) {
-    window.location.href = document.referrer;
-  } else {
-    alert('No previous page');
-  }
+  if (document.referrer) location.href = document.referrer;
+  else alert('No previous page');
 }
 
 /* STRIPE */
 function payWithStripe() {
-  if (getCart().length === 0) {
+  if (!getCart().length) {
     alert('Your cart is empty');
     return;
   }
-
-  window.location.href =
-    'https://buy.stripe.com/3cI4gy1S9aHT7Eq2Ab7Vm00';
+  location.href = 'https://buy.stripe.com/3cI4gy1S9aHT7Eq2Ab7Vm00';
 }
 
 /* INIT */
