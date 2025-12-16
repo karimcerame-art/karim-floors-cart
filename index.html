@@ -44,10 +44,6 @@ button {
   padding: 4px 10px;
   cursor: pointer;
 }
-
-.qty-btn {
-  padding: 2px 8px;
-}
 </style>
 </head>
 
@@ -79,29 +75,33 @@ button {
 <script>
 const CART_KEY = 'karim_cart';
 
-/* 1️⃣ READ PRODUCT FROM URL (IF EXISTS) */
+/* 🔹 READ URL PARAMETERS */
 const params = new URLSearchParams(window.location.search);
-const name = params.get('name');
-const price = parseFloat(params.get('price'));
+const productName = params.get('name');
+const productPrice = Number(params.get('price'));
 
-/* 2️⃣ ADD PRODUCT TO CART (COMBINE, NOT REPLACE) */
-if (name && price) {
+/* 🔹 ADD PRODUCT ONLY IF URL HAS DATA */
+if (productName && productPrice) {
   let cart = JSON.parse(localStorage.getItem(CART_KEY)) || [];
 
-  let item = cart.find(p => p.name === name);
-  if (item) {
-    item.qty += 1;
+  let existing = cart.find(p => p.name === productName);
+  if (existing) {
+    existing.qty += 1;
   } else {
-    cart.push({ name, price, qty: 1 });
+    cart.push({
+      name: productName,
+      price: productPrice,
+      qty: 1
+    });
   }
 
   localStorage.setItem(CART_KEY, JSON.stringify(cart));
 
-  // 🔒 remove params so refresh won't re-add
+  // 🚫 remove URL params so refresh doesn't add again
   history.replaceState({}, '', window.location.pathname);
 }
 
-/* CART HELPERS */
+/* 🔹 CART FUNCTIONS */
 function getCart() {
   return JSON.parse(localStorage.getItem(CART_KEY)) || [];
 }
@@ -110,13 +110,12 @@ function saveCart(cart) {
   localStorage.setItem(CART_KEY, JSON.stringify(cart));
 }
 
-/* 3️⃣ REMOVE ONE ITEM */
 function removeOne(name) {
   let cart = getCart();
   let item = cart.find(p => p.name === name);
   if (!item) return;
 
-  item.qty--;
+  item.qty -= 1;
   if (item.qty <= 0) {
     cart = cart.filter(p => p.name !== name);
   }
@@ -125,11 +124,10 @@ function removeOne(name) {
   renderCart();
 }
 
-/* 4️⃣ RENDER CART */
 function renderCart() {
   let cart = getCart();
+  let body = '';
   let total = 0;
-  let html = '';
 
   if (cart.length === 0) {
     document.getElementById('cartBody').innerHTML =
@@ -142,11 +140,11 @@ function renderCart() {
     let rowTotal = item.price * item.qty;
     total += rowTotal;
 
-    html += `
+    body += `
       <tr>
         <td>${item.name}</td>
         <td>
-          <button class="qty-btn" onclick="removeOne('${item.name}')">−</button>
+          <button onclick="removeOne('${item.name}')">−</button>
         </td>
         <td>${item.qty}</td>
         <td>${item.price}</td>
@@ -155,11 +153,11 @@ function renderCart() {
     `;
   });
 
-  document.getElementById('cartBody').innerHTML = html;
+  document.getElementById('cartBody').innerHTML = body;
   document.getElementById('grandTotal').innerText = 'Total: ' + total;
 }
 
-/* INITIAL RENDER */
+/* 🔹 INITIAL RENDER */
 renderCart();
 </script>
 
