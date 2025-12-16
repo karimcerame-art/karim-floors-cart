@@ -7,7 +7,7 @@
 <style>
 body {
   font-family: Arial, sans-serif;
-  max-width: 700px;
+  max-width: 900px;
   margin: auto;
   padding: 20px;
 }
@@ -15,7 +15,8 @@ body {
 .product {
   border: 1px solid #ddd;
   padding: 15px;
-  margin-bottom: 10px;
+  margin-bottom: 15px;
+  position: relative;
 }
 
 button {
@@ -24,17 +25,13 @@ button {
   border: none;
   padding: 6px 10px;
   cursor: pointer;
-  margin-left: 5px;
+  margin-right: 5px;
 }
 
 #cart {
   border-top: 2px solid #000;
   margin-top: 30px;
   padding-top: 15px;
-}
-
-.qty-btn {
-  padding: 4px 8px;
 }
 </style>
 </head>
@@ -43,23 +40,23 @@ button {
 
 <h1>Karim Floors</h1>
 
-<!-- PRODUCTS -->
+<!-- PRODUCTS (NO LINKS) -->
 <div class="product">
   <h3>Laminate Oak</h3>
   <p>Price: 150</p>
-  <button onclick="addToCart('Laminate Oak',150)">Add</button>
+  <button type="button" onclick="addToCart(event,'Laminate Oak',150)">Add</button>
 </div>
 
 <div class="product">
   <h3>Laminate Walnut</h3>
   <p>Price: 180</p>
-  <button onclick="addToCart('Laminate Walnut',180)">Add</button>
+  <button type="button" onclick="addToCart(event,'Laminate Walnut',180)">Add</button>
 </div>
 
 <div class="product">
   <h3>Laminate Maple</h3>
   <p>Price: 200</p>
-  <button onclick="addToCart('Laminate Maple',200)">Add</button>
+  <button type="button" onclick="addToCart(event,'Laminate Maple',200)">Add</button>
 </div>
 
 <!-- CART -->
@@ -67,19 +64,24 @@ button {
   <h2>Cart</h2>
   <div id="cartItems"></div>
   <h3 id="total">Total: 0</h3>
-  <button onclick="checkout()">Checkout</button>
+  <button type="button" onclick="checkout()">Checkout</button>
 </div>
 
 <script>
+const CART_KEY = 'karim_cart';
+
 function getCart() {
-  return JSON.parse(localStorage.getItem('karim_cart')) || [];
+  return JSON.parse(localStorage.getItem(CART_KEY)) || [];
 }
 
 function saveCart(cart) {
-  localStorage.setItem('karim_cart', JSON.stringify(cart));
+  localStorage.setItem(CART_KEY, JSON.stringify(cart));
 }
 
-function addToCart(name, price) {
+function addToCart(e, name, price) {
+  e.preventDefault();
+  e.stopPropagation();
+
   let cart = getCart();
   let item = cart.find(p => p.name === name);
 
@@ -96,11 +98,9 @@ function addToCart(name, price) {
 function removeOne(name) {
   let cart = getCart();
   let item = cart.find(p => p.name === name);
-
   if (!item) return;
 
   item.qty--;
-
   if (item.qty <= 0) {
     cart = cart.filter(p => p.name !== name);
   }
@@ -110,16 +110,15 @@ function removeOne(name) {
 }
 
 function removeAll(name) {
-  let cart = getCart();
-  cart = cart.filter(p => p.name !== name);
+  let cart = getCart().filter(p => p.name !== name);
   saveCart(cart);
   renderCart();
 }
 
 function renderCart() {
   let cart = getCart();
-  let html = '';
   let total = 0;
+  let html = '';
 
   if (cart.length === 0) {
     document.getElementById('cartItems').innerHTML = 'Cart is empty';
@@ -135,8 +134,8 @@ function renderCart() {
       <p>
         <strong>${item.name}</strong><br>
         ${item.qty} × ${item.price} = ${subtotal}
-        <button class="qty-btn" onclick="addToCart('${item.name}', ${item.price})">+</button>
-        <button class="qty-btn" onclick="removeOne('${item.name}')">−</button>
+        <button onclick="addToCart(event,'${item.name}',${item.price})">+</button>
+        <button onclick="removeOne('${item.name}')">−</button>
         <button onclick="removeAll('${item.name}')">Remove</button>
       </p>
     `;
@@ -147,18 +146,15 @@ function renderCart() {
 }
 
 function checkout() {
-  let cart = getCart();
-  if (cart.length === 0) {
+  if (getCart().length === 0) {
     alert('Cart is empty');
     return;
   }
-
-  alert('Proceed to Stripe checkout');
-  // Stripe integration goes here
+  alert('Ready for Stripe checkout');
 }
 
 renderCart();
 </script>
 
 </body>
-</html>
+</html> 
