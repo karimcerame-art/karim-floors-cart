@@ -2,24 +2,66 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Karim Floors – Product</title>
+<title>Product</title>
+
+<style>
+body {
+  font-family: Arial, sans-serif;
+  max-width: 600px;
+  margin: 40px;
+}
+
+h1 {
+  font-size: 26px;
+  margin-bottom: 10px;
+}
+
+.price {
+  font-size: 16px;
+  margin-bottom: 20px;
+}
+
+/* 🔥 BLACK BUY NOW BUTTON */
+.buy-btn {
+  background: #000;
+  color: #fff;
+  border: none;
+  padding: 8px 16px;
+  font-size: 14px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.buy-btn:hover {
+  opacity: 0.9;
+}
+</style>
 </head>
 
 <body>
 
-<h2>Laminate Floor – 10Cl52799</h2>
-<p><b>Price:</b> 265 MAD</p>
+<h1 id="name">Laminate Floor – 10Cl52799</h1>
 
-<button onclick="goBuy()">Buy Now</button>
+<div class="price">
+  Price: <span id="price">265</span> MAD
+</div>
+
+<button class="buy-btn" onclick="goBuy()">
+  Buy Now
+</button>
 
 <script>
-function goBuy() {
-  const name = encodeURIComponent("10Cl52799 per m²");
-  const price = 265;
-  const qty = 1;
+const params = new URLSearchParams(window.location.search);
 
+const name = params.get("name") || "Laminate Floor – 10Cl52799";
+const price = params.get("price") || "265";
+
+document.getElementById("name").textContent = name;
+document.getElementById("price").textContent = price;
+
+function goBuy() {
   window.location.href =
-    `buy.html?name=${name}&price=${price}&qty=${qty}`;
+    `buy.html?name=${encodeURIComponent(name)}&price=${price}`;
 }
 </script>
 
