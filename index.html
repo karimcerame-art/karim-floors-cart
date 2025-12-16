@@ -24,6 +24,7 @@ body {
 table {
   width: 100%;
   border-collapse: collapse;
+  margin-bottom: 15px;
 }
 
 th, td {
@@ -40,13 +41,14 @@ button {
   background: black;
   color: white;
   border: none;
-  padding: 6px 12px;
-  margin-right: 6px;
+  padding: 10px 16px;
+  margin: 5px 5px 0 0;
   cursor: pointer;
+  font-size: 14px;
 }
 
-.actions {
-  margin-top: 15px;
+.buttons {
+  margin-top: 20px;
 }
 </style>
 </head>
@@ -75,21 +77,22 @@ button {
 
   <h3 id="grandTotal">Total: 0</h3>
 
-  <div class="actions">
-    <button onclick="goBack()">← Keep shopping</button>
-    <button onclick="payWithStripe()">Pay with Stripe</button>
+  <!-- ✅ BUTTONS ARE OUTSIDE TABLE -->
+  <div class="buttons">
+    <button type="button" onclick="keepShopping()">← Keep shopping</button>
+    <button type="button" onclick="payWithStripe()">Pay with Stripe</button>
   </div>
 </div>
 
 <script>
 const CART_KEY = 'karim_cart';
 
-/* 🔹 READ PRODUCT FROM URL */
+/* ✅ READ PRODUCT FROM URL */
 const params = new URLSearchParams(window.location.search);
 const productName = params.get('name');
 const productPrice = Number(params.get('price'));
 
-/* 🔹 ADD PRODUCT TO CART IF URL HAS DATA */
+/* ✅ ADD PRODUCT ONCE */
 if (productName && productPrice) {
   let cart = JSON.parse(localStorage.getItem(CART_KEY)) || [];
 
@@ -102,7 +105,7 @@ if (productName && productPrice) {
 
   localStorage.setItem(CART_KEY, JSON.stringify(cart));
 
-  // Prevent duplicate on refresh
+  // remove params to avoid duplicate
   history.replaceState({}, '', window.location.pathname);
 }
 
@@ -115,7 +118,7 @@ function saveCart(cart) {
   localStorage.setItem(CART_KEY, JSON.stringify(cart));
 }
 
-/* REMOVE ONE ITEM */
+/* REMOVE ONE */
 function removeOne(name) {
   let cart = getCart();
   let item = cart.find(p => p.name === name);
@@ -133,7 +136,7 @@ function removeOne(name) {
 /* RENDER CART */
 function renderCart() {
   let cart = getCart();
-  let body = '';
+  let html = '';
   let total = 0;
 
   if (cart.length === 0) {
@@ -147,12 +150,10 @@ function renderCart() {
     let rowTotal = item.price * item.qty;
     total += rowTotal;
 
-    body += `
+    html += `
       <tr>
         <td>${item.name}</td>
-        <td>
-          <button onclick="removeOne('${item.name}')">−</button>
-        </td>
+        <td><button type="button" onclick="removeOne('${item.name}')">−</button></td>
         <td>${item.qty}</td>
         <td>${item.price}</td>
         <td>${rowTotal}</td>
@@ -160,31 +161,33 @@ function renderCart() {
     `;
   });
 
-  document.getElementById('cartBody').innerHTML = body;
+  document.getElementById('cartBody').innerHTML = html;
   document.getElementById('grandTotal').innerText = 'Total: ' + total;
 }
 
-/* BUTTON ACTIONS */
-function goBack() {
-  window.history.back();
+/* ✅ KEEP SHOPPING */
+function keepShopping() {
+  if (document.referrer) {
+    window.location.href = document.referrer;
+  } else {
+    alert('No previous page');
+  }
 }
 
+/* ✅ STRIPE PAYMENT */
 function payWithStripe() {
-  let cart = getCart();
+  const cart = getCart();
   if (cart.length === 0) {
     alert('Your cart is empty');
     return;
   }
 
-  // Optional: save total
-  let total = cart.reduce((sum, i) => sum + i.price * i.qty, 0);
-  localStorage.setItem('karim_cart_total', total);
-
-  // Redirect to Stripe Checkout
-  window.location.href = 'https://buy.stripe.com/3cI4gy1S9aHT7Eq2Ab7Vm00';
+  // Redirect to YOUR Stripe link
+  window.location.href =
+    'https://buy.stripe.com/3cI4gy1S9aHT7Eq2Ab7Vm00';
 }
 
-/* INITIAL LOAD */
+/* INIT */
 renderCart();
 </script>
 
